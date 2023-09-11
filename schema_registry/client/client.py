@@ -287,6 +287,7 @@ class SchemaRegistryClient(BaseClient):
         self,
         subject: str,
         schema: typing.Union[BaseSchema, str],
+        references: typing.Optional[typing.Union[typing.List[str], str]] = None,
         headers: typing.Optional[typing.Dict] = None,
         timeout: typing.Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
         schema_type: str = utils.AVRO_SCHEMA_TYPE,
@@ -304,6 +305,8 @@ class SchemaRegistryClient(BaseClient):
             subject str: subject name
             schema typing.Union[client.schema.BaseSchema, str]: Avro or JSON
                 schema to be registered
+            references typing.Optional[typing.Union[typing.List[str], str]]: List of
+                other schemas that are referenced by this schema.
             headers Dict: Extra headers to add on the requests
             timeout Union[TimeoutTypes, UseClientDefault]: The timeout configuration
                 to use when sending requests. Default USE_CLIENT_DEFAULT
@@ -333,7 +336,7 @@ class SchemaRegistryClient(BaseClient):
             return response.schema_id
 
         url, method = self.url_manager.url_for("register", subject=subject)
-        body = {"schema": json.dumps(schema.raw_schema), "schemaType": schema.schema_type}
+        body = {"schema": json.dumps(schema.raw_schema), "schemaType": schema.schema_type, "references": references}
 
         (
             result,
@@ -822,6 +825,7 @@ class AsyncSchemaRegistryClient(BaseClient):
         self,
         subject: str,
         schema: typing.Union[BaseSchema, str],
+        references: typing.Optional[typing.Union[typing.List[str], str]] = None,
         headers: typing.Optional[typing.Dict] = None,
         timeout: typing.Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
         schema_type: str = utils.AVRO_SCHEMA_TYPE,
@@ -840,6 +844,8 @@ class AsyncSchemaRegistryClient(BaseClient):
             subject str: subject name
             schema typing.Union[client.schema.BaseSchema, str]: Avro or JSON
                 schema to be registered
+            references typing.Optional[typing.Union[typing.List[str], str]]: List of
+                other schemas that are referenced by this schema.
             headers Dict: Extra headers to add on the requests
             timeout Union[TimeoutTypes, UseClientDefault]: The timeout configuration
                 to use when sending requests. Default USE_CLIENT_DEFAULT
@@ -870,7 +876,7 @@ class AsyncSchemaRegistryClient(BaseClient):
             return response.schema_id
 
         url, method = self.url_manager.url_for("register", subject=subject)
-        body = {"schema": json.dumps(schema.raw_schema), "schemaType": schema.schema_type}
+        body = {"schema": json.dumps(schema.raw_schema), "schemaType": schema.schema_type, "references": references}
 
         result, code = get_response_and_status_code(
             await self.request(url, method=method, body=body, headers=headers, timeout=timeout)
